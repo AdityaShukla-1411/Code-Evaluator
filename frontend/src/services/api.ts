@@ -9,7 +9,6 @@ import type {
   CSVReportType,
   ApiResponse,
 } from "@/types";
-
 // Create axios instance with base configuration
 // Prefer same-origin "/api" so Next.js dev proxy (rewrites) handles routing to the backend.
 // This avoids CORS and works both on localhost and when accessing via LAN IP.
@@ -20,7 +19,6 @@ const api = axios.create({
     "Content-Type": "application/json",
   },
 });
-
 // Request interceptor for logging
 api.interceptors.request.use(
   (config) => {
@@ -34,7 +32,6 @@ api.interceptors.request.use(
     return Promise.reject(error);
   }
 );
-
 // Response interceptor
 api.interceptors.response.use(
   (response) => {
@@ -49,7 +46,6 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
 // Health Check
 export const healthCheck = async (): Promise<HealthCheck> => {
   try {
@@ -60,7 +56,6 @@ export const healthCheck = async (): Promise<HealthCheck> => {
     throw new Error(handleApiError(error));
   }
 };
-
 // Analyze Code
 export const analyzeCode = async (
   code: string,
@@ -79,7 +74,6 @@ export const analyzeCode = async (
     throw new Error(handleApiError(error));
   }
 };
-
 // Upload File
 export const uploadFile = async (file: File): Promise<AnalysisResult> => {
   try {
@@ -102,7 +96,6 @@ export const uploadFile = async (file: File): Promise<AnalysisResult> => {
     throw new Error(handleApiError(error));
   }
 };
-
 // Analyze Bulk Files
 export const analyzeBulkFiles = async (
   files: File[],
@@ -111,14 +104,12 @@ export const analyzeBulkFiles = async (
   try {
     const uploadResults: any[] = [];
     console.log(`Starting bulk upload of ${files.length} files`);
-
     // Use uploadBatchWithProgress for the actual upload
     const results = await uploadBatchWithProgress(
       files,
       "https://code-evaluator-backend-7h9w.onrender.com",
       onProgress
     );
-
     // Trigger bulk analysis
     const response = await api.post<ApiResponse<BulkAnalysisResult>>(
       "/analyze/bulk",
@@ -130,7 +121,6 @@ export const analyzeBulkFiles = async (
     throw new Error(handleApiError(error));
   }
 };
-
 // Get All Reports
 export const getAllReports = async (): Promise<ReportSummary[]> => {
   try {
@@ -141,7 +131,6 @@ export const getAllReports = async (): Promise<ReportSummary[]> => {
     throw new Error(handleApiError(error));
   }
 };
-
 // Get Report by ID
 export const getReportById = async (id: string): Promise<SavedReport> => {
   try {
@@ -152,7 +141,6 @@ export const getReportById = async (id: string): Promise<SavedReport> => {
     throw new Error(handleApiError(error));
   }
 };
-
 // Delete Report
 export const deleteReport = async (id: string): Promise<void> => {
   try {
@@ -163,7 +151,6 @@ export const deleteReport = async (id: string): Promise<void> => {
     throw new Error(handleApiError(error));
   }
 };
-
 // Get Statistics
 export const getStatistics = async (): Promise<Statistics> => {
   try {
@@ -174,7 +161,6 @@ export const getStatistics = async (): Promise<Statistics> => {
     throw new Error(handleApiError(error));
   }
 };
-
 // Export Report
 export const exportReport = async (
   id: string,
@@ -192,7 +178,6 @@ export const exportReport = async (
     throw new Error(handleApiError(error));
   }
 };
-
 // Upload batch with progress tracking
 export const uploadBatchWithProgress = async (
   files: File[],
@@ -202,26 +187,21 @@ export const uploadBatchWithProgress = async (
   const totalFiles = files.length;
   let completedFiles = 0;
   const results: any[] = [];
-
   console.log(`Starting batch upload of ${totalFiles} files to ${baseUrl}`);
-
   for (const file of files) {
     try {
       const formData = new FormData();
       formData.append("file", file);
-
       const response = await axios.post(`${baseUrl}/api/upload`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-
       results.push({
         filename: file.name,
         success: true,
         data: response.data,
       });
-
       completedFiles++;
       const progress = Math.round((completedFiles / totalFiles) * 100);
       console.log(
@@ -244,11 +224,9 @@ export const uploadBatchWithProgress = async (
       }
     }
   }
-
   console.log(`Batch upload completed. ${results.length} files processed.`);
   return results;
 };
-
 // Format File Size
 export const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return "0 Bytes";
@@ -257,7 +235,6 @@ export const formatFileSize = (bytes: number): string => {
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
 };
-
 // Validate File Size
 export const isValidFileSize = (
   file: File,
@@ -266,14 +243,12 @@ export const isValidFileSize = (
   const maxSizeBytes = maxSizeMB * 1024 * 1024;
   return file.size <= maxSizeBytes;
 };
-
 // Error Handler
 export const handleApiError = (error: any): string => {
   if (error.response) {
     // Server responded with error status
     const status = error.response.status;
     const data = error.response.data;
-
     if (status === 400) {
       return data.error || "Invalid request. Please check your input.";
     } else if (status === 401) {
@@ -289,7 +264,6 @@ export const handleApiError = (error: any): string => {
     } else if (status >= 500) {
       return "Server error. Please try again later.";
     }
-
     return data.error || data.message || "An unexpected error occurred.";
   } else if (error.request) {
     // Network error
@@ -299,12 +273,29 @@ export const handleApiError = (error: any): string => {
     return error.message || "An unexpected error occurred.";
   }
 };
-
 // Create API Error
 export const createApiError = (message: string, code?: string): Error => {
   const error = new Error(message);
   (error as any).code = code;
   return error;
 };
+
+// Export aliases for backward compatibility
+export { healthCheck as checkApiStatus };
+export { getAllReports as getReports };
+export { getReportById as getReport };
+export { uploadFile as analyzeFile };
+
+// Utility function to download CSV files
+export function downloadCSV(csv: string, filename: string): void {
+  const csvFile = new Blob([csv], { type: 'text/csv' });
+  const downloadLink = document.createElement('a');
+  downloadLink.download = filename;
+  downloadLink.href = window.URL.createObjectURL(csvFile);
+  downloadLink.style.display = 'none';
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+  document.body.removeChild(downloadLink);
+}
 
 export default api;
