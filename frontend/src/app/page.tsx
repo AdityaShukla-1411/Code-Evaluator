@@ -43,7 +43,6 @@ import type {
   AppState,
   CSVReportType,
 } from "@/types";
-
 export default function HomePage() {
   // State management
   const [appState, setAppState] = useState<AppState>({
@@ -66,7 +65,6 @@ export default function HomePage() {
   const [apiStatus, setApiStatus] = useState<"checking" | "online" | "offline">(
     "checking"
   );
-
   // Check API status on component mount
   useEffect(() => {
     const checkApi = async () => {
@@ -80,7 +78,6 @@ export default function HomePage() {
     };
     checkApi();
   }, []);
-
   // Load saved reports when switching to Reports tab
   useEffect(() => {
     const loadReports = async () => {
@@ -115,7 +112,6 @@ export default function HomePage() {
     };
     loadReports();
   }, [appState.activeTab]);
-
   // Handle single file analysis
   const handleSingleFileAnalysis = useCallback(async (files: File[]) => {
     if (files.length === 0) return;
@@ -135,7 +131,6 @@ export default function HomePage() {
       toast.error(handleApiError(error));
     }
   }, []);
-
   // Handle direct code analysis
   const handleDirectCodeAnalysis = useCallback(async () => {
     if (!appState.code.trim()) {
@@ -146,8 +141,7 @@ export default function HomePage() {
     try {
       const result = await analyzeCode(
         appState.code,
-        appState.fileName,
-        appState.problemStatement
+        appState.fileName
       );
       setAppState((prev) => ({
         ...prev,
@@ -161,7 +155,6 @@ export default function HomePage() {
       toast.error(handleApiError(error));
     }
   }, [appState.code, appState.fileName]);
-
   // Handle bulk file analysis
   const handleBulkFileAnalysis = useCallback(
     async (files: File[]) => {
@@ -226,7 +219,6 @@ export default function HomePage() {
     },
     [appState.problemStatement]
   );
-
   // Handle CSV export
   const handleExportCSV = useCallback(
     async (results: AnalysisResult[], type: CSVReportType) => {
@@ -240,12 +232,10 @@ export default function HomePage() {
     },
     []
   );
-
   // Tab switching
   const setActiveTab = useCallback((tab: "single" | "bulk" | "reports") => {
     setAppState((prev) => ({ ...prev, activeTab: tab, results: [] }));
   }, []);
-
   return (
     <main className="min-h-screen">
       {/* ... rest of JSX ... */}
