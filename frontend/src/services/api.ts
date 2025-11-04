@@ -35,7 +35,7 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor for error handling
+// Response interceptor
 api.interceptors.response.use(
   (response) => {
     console.log(`✅ API Response: ${response.status} ${response.config.url}`);
@@ -43,8 +43,8 @@ api.interceptors.response.use(
   },
   (error) => {
     console.error(
-      "❌ API Response Error:",
-      error.response?.data || error.message
+      `❌ API Response Error: ${error.response?.status} ${error.config?.url}`,
+      error.response?.data
     );
     return Promise.reject(error);
   }
@@ -52,239 +52,203 @@ api.interceptors.response.use(
 
 // Health Check
 export const healthCheck = async (): Promise<HealthCheck> => {
-  const response = await api.get("/health");
-  return response.data;
+  try {
+    const response = await api.get<ApiResponse<HealthCheck>>("/health");
+    return response.data.data || response.data;
+  } catch (error: any) {
+    console.error("Health check failed:", error);
+    throw new Error(handleApiError(error));
+  }
 };
 
-// Single File Analysis
-export const analyzeFile = async (
-  file: File,
-  problemStatement?: string
-): Promise<AnalysisResult> => {
-  const formData = new FormData();
-  formData.append("file", file);
-  if (problemStatement) formData.append("problemStatement", problemStatement);
-
-  // Let Axios set the multipart boundary headers automatically
-  const response = await api.post("/analyze", formData);
-
-  return response.data;
-};
-
-// Direct Code Analysis
+// Analyze Code
 export const analyzeCode = async (
   code: string,
-  fileName: string = "code.txt",
-  problemStatement?: string
+  language: string = "auto"
 ): Promise<AnalysisResult> => {
-  const response = await api.post("/analyze", {
-    code,
-    fileName,
-    problemStatement,
-  });
-
-  return response.data;
+  try {
+    console.log("Analyzing code...\nLanguage:", language);
+    const response = await api.post<ApiResponse<AnalysisResult>>(
+      "/analyze",
+      { code, language }
+    );
+    console.log("Analysis successful");
+    return response.data.data || response.data;
+  } catch (error: any) {
+    console.error("Analysis error:", error);
+    throw new Error(handleApiError(error));
+  }
 };
 
-// Bulk File Analysis
+// Upload File
+export const uploadFile = async (file: File): Promise<AnalysisResult> => {
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+    console.log(`Uploading file: ${file.name}`);
+    const response = await api.post<ApiResponse<AnalysisResult>>(
+      "/upload",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    console.log("File uploaded successfully");
+    return response.data.data || response.data;
+  } catch (error: any) {
+    console.error("Upload error:", error);
+    throw new Error(handleApiError(error));
+  }
+};
+
+// Analyze Bulk Files
 export const analyzeBulkFiles = async (
   files: File[],
-  onProgress?: (progress: number) => void,
-  problemStatement?: string
+  onProgress?: (progress: number) => void
 ): Promise<BulkAnalysisResult> => {
-  const formData = new FormData();
-  files.forEach((file) => {
-    formData.append("files", file);
-  });
-  if (problemStatement) formData.append("problemStatement", problemStatement);
+  try {
+    const uploadResults: any[] = [];
+    console.log(`Starting bulk upload of ${files.length} files`);
 
-  // Bypass Next.js proxy for large multipart to avoid dev proxy resets/400s
-  const backendURL =
-    process.env.NEXT_PUBLIC_API_URL &&
-    !process.env.NEXT_PUBLIC_API_URL.startsWith("/")
-      ? process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, "")
-      : "http://localhost:5000";
+    // Use uploadBatchWithProgress for the actual upload
+    const results = await uploadBatchWithProgress(
+      files,
+      "https://code-evaluator-backend-7h9w.onrender.com",
+      onProgress
+    );
 
-  const response = await axios.post(
-    `${backendURL}/api/analyze/bulk`,
-    formData,
-    {
-      onUploadProgress: (progressEvent) => {
-        if (progressEvent.total && onProgress) {
-          const progress = Math.round(
-            (progressEvent.loaded * 100) / progressEvent.total
-          );
-          onProgress(progress);
-        }
-      },
-    }
-  );
+    // Trigger bulk analysis
+    const response = await api.post<ApiResponse<BulkAnalysisResult>>(
+      "/analyze/bulk",
+      { files: results }
+    );
 
-  return response.data;
+    return response.data.data || response.data;
+  } catch (error: any) {
+    console.error("Bulk analysis error:", error);
+    throw new Error(handleApiError(error));
+  }
 };
 
-// Get Reports List
-export const getReports = async (): Promise<ReportSummary[]> => {
-  const response = await api.get("/reports");
-  return response.data;
+// Get All Reports
+export const getAllReports = async (): Promise<ReportSummary[]> => {
+  try {
+    const response = await api.get<ApiResponse<ReportSummary[]>>("/reports");
+    return response.data.data || response.data;
+  } catch (error: any) {
+    console.error("Failed to fetch reports:", error);
+    throw new Error(handleApiError(error));
+  }
 };
 
-// Get Specific Report
-export const getReport = async (reportId: string): Promise<SavedReport> => {
-  const response = await api.get(`/reports/${reportId}`);
-  return response.data;
+// Get Report by ID
+export const getReportById = async (id: string): Promise<SavedReport> => {
+  try {
+    const response = await api.get<ApiResponse<SavedReport>>(`/reports/${id}`);
+    return response.data.data || response.data;
+  } catch (error: any) {
+    console.error(`Failed to fetch report ${id}:", error);
+    throw new Error(handleApiError(error));
+  }
 };
 
-// Export to CSV
-export const exportToCSV = async (
-  results: AnalysisResult[],
-  reportType: CSVReportType = "detailed"
-): Promise<Blob> => {
-  const response = await api.post(
-    "/export/csv",
-    {
-      results,
-      reportType,
-    },
-    {
-      responseType: "blob",
-    }
-  );
-
-  return new Blob([response.data], { type: "text/csv" });
+// Delete Report
+export const deleteReport = async (id: string): Promise<void> => {
+  try {
+    await api.delete(`/reports/${id}`);
+    console.log(`Report ${id} deleted successfully`);
+  } catch (error: any) {
+    console.error(`Failed to delete report ${id}:", error);
+    throw new Error(handleApiError(error));
+  }
 };
 
 // Get Statistics
 export const getStatistics = async (): Promise<Statistics> => {
-  const response = await api.get("/stats");
-  return response.data;
+  try {
+    const response = await api.get<ApiResponse<Statistics>>("/statistics");
+    return response.data.data || response.data;
+  } catch (error: any) {
+    console.error("Failed to fetch statistics:", error);
+    throw new Error(handleApiError(error));
+  }
 };
 
-// File Upload with Progress
-export const uploadFileWithProgress = async (
-  file: File,
-  onProgress?: (progress: number) => void
-): Promise<AnalysisResult> => {
-  const formData = new FormData();
-  formData.append("file", file);
-
-  const response = await api.post("/analyze", formData, {
-    onUploadProgress: (progressEvent) => {
-      if (progressEvent.total && onProgress) {
-        const progress = Math.round(
-          (progressEvent.loaded * 100) / progressEvent.total
-        );
-        onProgress(progress);
-      }
-    },
-  });
-
-  return response.data;
+// Export Report
+export const exportReport = async (
+  id: string,
+  format: CSVReportType = "json"
+): Promise<Blob> => {
+  try {
+    const response = await api.get(`/export/${id}`, {
+      params: { format },
+      responseType: "blob",
+    });
+    console.log(`Report ${id} exported as ${format}`);
+    return response.data;
+  } catch (error: any) {
+    console.error(`Failed to export report ${id}:", error);
+    throw new Error(handleApiError(error));
+  }
 };
 
-// Batch Upload with Progress Tracking
+// Upload batch with progress tracking
 export const uploadBatchWithProgress = async (
   files: File[],
-  onFileProgress?: (fileName: string, progress: number) => void,
-  onOverallProgress?: (progress: number) => void
-): Promise<BulkAnalysisResult> => {
-  const formData = new FormData();
-  files.forEach((file) => {
-    formData.append("files", file);
-  });
+  baseUrl: string = "https://code-evaluator-backend-7h9w.onrender.com",
+  onProgress?: (progress: number) => void
+): Promise<any[]> => {
+  const totalFiles = files.length;
+  let completedFiles = 0;
+  const results: any[] = [];
 
-  let uploadedBytes = 0;
-  const totalBytes = files.reduce((total, file) => total + file.size, 0);
+  console.log(`Starting batch upload of ${totalFiles} files to ${baseUrl}`);
 
-  const backendURL =
-    process.env.NEXT_PUBLIC_API_URL &&
-    !process.env.NEXT_PUBLIC_API_URL.startsWith("/")
-      ? process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, "")
-      : "http://localhost:5000";
+  for (const file of files) {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
 
-  const response = await axios.post(
-    `${backendURL}/api/analyze/bulk`,
-    formData,
-    {
-      onUploadProgress: (progressEvent) => {
-        if (progressEvent.total && onOverallProgress) {
-          const progress = Math.round(
-            (progressEvent.loaded * 100) / progressEvent.total
-          );
-          onOverallProgress(progress);
-        }
-      },
+      const response = await axios.post(`${baseUrl}/api/upload`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      results.push({
+        filename: file.name,
+        success: true,
+        data: response.data,
+      });
+
+      completedFiles++;
+      const progress = Math.round((completedFiles / totalFiles) * 100);
+      console.log(
+        `Uploaded ${completedFiles}/${totalFiles} files (${progress}%)`
+      );
+
+      if (onProgress) {
+        onProgress(progress);
+      }
+    } catch (error: any) {
+      console.error(`Failed to upload ${file.name}:", error);
+      results.push({
+        filename: file.name,
+        success: false,
+        error: handleApiError(error),
+      });
+      completedFiles++;
+      const progress = Math.round((completedFiles / totalFiles) * 100);
+      if (onProgress) {
+        onProgress(progress);
+      }
     }
-  );
-
-  return response.data;
-};
-
-// Utility Functions
-
-// Download CSV File
-export const downloadCSV = async (
-  results: AnalysisResult[],
-  reportType: CSVReportType = "detailed",
-  fileName?: string
-): Promise<void> => {
-  try {
-    const blob = await exportToCSV(results, reportType);
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download =
-      fileName || `code_evaluation_${reportType}_${Date.now()}.csv`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
-  } catch (error) {
-    console.error("Error downloading CSV:", error);
-    throw new Error("Failed to download CSV file");
   }
-};
 
-// Check if API is Available
-export const checkApiStatus = async (): Promise<boolean> => {
-  try {
-    await healthCheck();
-    return true;
-  } catch (error) {
-    console.error("API is not available:", error);
-    return false;
-  }
-};
-
-// Get File Extension
-export const getFileExtension = (fileName: string): string => {
-  return fileName.split(".").pop()?.toLowerCase() || "";
-};
-
-// Validate File Type
-export const isValidCodeFile = (fileName: string): boolean => {
-  const validExtensions = [
-    "py",
-    "js",
-    "ts",
-    "jsx",
-    "tsx",
-    "java",
-    "cpp",
-    "c",
-    "cs",
-    "php",
-    "rb",
-    "go",
-    "rs",
-    "kt",
-    "swift",
-    "scala",
-    "pl",
-    "r",
-  ];
-  const extension = getFileExtension(fileName);
-  return validExtensions.includes(extension);
+  console.log(`Batch upload completed. ${results.length} files processed.`);
+  return results;
 };
 
 // Format File Size
