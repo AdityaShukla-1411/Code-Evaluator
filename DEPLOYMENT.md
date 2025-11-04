@@ -89,7 +89,9 @@ Complete guide for deploying Code Evaluator Unified to production.
    - Root directory: `frontend`
    - Build command: `npm install && npm run build`
    - Publish directory: `out`
-   - Add environment variable
+   - Add environment variable: `NEXT_PUBLIC_API_URL=<your-backend-url>`
+   
+   > **📝 Note:** The Publish Directory must be `out` because Next.js static export generates files in this directory.
 
 ---
 

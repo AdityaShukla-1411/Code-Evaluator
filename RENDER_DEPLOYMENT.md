@@ -4,6 +4,27 @@ Complete step-by-step guide to deploy Code Evaluator Unified on Render.com (foll
 
 ---
 
+## 🎯 Quick Answer: Publish Directory for Render
+
+**For deploying this static website on Render, use:**
+
+```
+Publish Directory: out
+```
+
+**Why `out` and not `.next`?**
+- Next.js static export (configured in `next.config.js`) generates production-ready HTML files in the `out` directory
+- The `.next` directory is used by Next.js server, but for static site hosting on Render, you need the static files from `out`
+- Our build command (`npm run build`) automatically creates this directory with all necessary assets
+
+**Complete configuration for Render Static Site:**
+- **Root Directory:** `frontend`
+- **Build Command:** `npm install && npm run build`
+- **Publish Directory:** `out` ✅
+- **Environment Variable:** `NEXT_PUBLIC_API_URL=<your-backend-url>`
+
+---
+
 ## 📋 Prerequisites
 
 Before you start:
@@ -158,7 +179,9 @@ Fill in these settings:
 | **Root Directory**    | `frontend`                              |
 | **Branch**            | `main`                                  |
 | **Build Command**     | `npm install && npm run build`          |
-| **Publish Directory** | `.next`                                 |
+| **Publish Directory** | `out`                                   |
+
+> **📝 Important:** The Publish Directory must be set to `out` (not `.next`). Next.js static export generates files in the `out` directory, which is what Render needs to serve your static site.
 
 ### **4.3 Add Environment Variable**
 
