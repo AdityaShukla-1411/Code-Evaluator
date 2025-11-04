@@ -22,6 +22,8 @@
 
 **⚡ One-click deployment in 5 minutes!** See [Quick Deploy Guide](./QUICK_DEPLOY.md) for detailed instructions.
 
+**🤔 Not sure which platform to choose?** Check the [Platform Comparison Guide](./PLATFORM_COMPARISON.md)!
+
 ---
 
 [Features](#-features) • [Demo](#-demo) • [Quick Start](#-installation) • [Setup Guide](./SETUP.md) • [Deployment](./DEPLOYMENT.md) • [Troubleshooting](./TROUBLESHOOTING.md) • [API](#-api-documentation) • [Contributing](#-contributing)
@@ -543,7 +545,12 @@ Choose the best option for your needs:
 
 **All options have FREE tiers available!**
 
-See [DEPLOYMENT.md](./DEPLOYMENT.md) for comprehensive deployment instructions.
+### **📚 Deployment Resources**
+
+- 🚀 [Quick Deploy Guide](./QUICK_DEPLOY.md) - Step-by-step instructions for all platforms
+- 📊 [Platform Comparison](./PLATFORM_COMPARISON.md) - Detailed comparison to help you choose
+- ✅ [Deployment Checklist](./DEPLOYMENT_CHECKLIST.md) - Verify your deployment works correctly
+- 📖 [Comprehensive Guide](./DEPLOYMENT.md) - In-depth deployment documentation
 
 ### **Quick Production Build**
 
