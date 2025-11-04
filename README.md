@@ -12,6 +12,18 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5+-blue.svg)](https://www.typescriptlang.org/)
 [![Gemini AI](https://img.shields.io/badge/Gemini-2.0_Flash-orange.svg)](https://ai.google.dev/)
 
+---
+
+## 🚀 Deploy for FREE Now!
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/AdityaShukla-1411/Code-Evaluator)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/AdityaShukla-1411/Code-Evaluator&project-name=code-evaluator&repository-name=code-evaluator&root-directory=frontend)
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/AdityaShukla-1411/Code-Evaluator)
+
+**⚡ One-click deployment in 5 minutes!** See [Quick Deploy Guide](./QUICK_DEPLOY.md) for detailed instructions.
+
+---
+
 [Features](#-features) • [Demo](#-demo) • [Quick Start](#-installation) • [Setup Guide](./SETUP.md) • [Deployment](./DEPLOYMENT.md) • [Troubleshooting](./TROUBLESHOOTING.md) • [API](#-api-documentation) • [Contributing](#-contributing)
 
 </div>
@@ -512,15 +524,26 @@ const nextConfig = {
 
 ## 🚀 Deployment
 
-### **Quick Deployment Guide**
+### **⚡ Quick Deploy (FREE)**
+
+**One-click deployment to free hosting platforms:**
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/AdityaShukla-1411/Code-Evaluator)
+
+See [QUICK_DEPLOY.md](./QUICK_DEPLOY.md) for step-by-step instructions with all free hosting options!
+
+### **Deployment Options**
+
+Choose the best option for your needs:
+
+- **🌐 Render** - One-click full-stack deployment (Recommended for beginners)
+- **⚡ Vercel + Railway** - High performance, generous free tier
+- **🔷 Netlify + Render** - Best-in-class hosting combination
+- **🐳 Docker** - Self-hosted with complete control
+
+**All options have FREE tiers available!**
 
 See [DEPLOYMENT.md](./DEPLOYMENT.md) for comprehensive deployment instructions.
-
-**Popular Options:**
-
-- **Vercel** (Frontend) + **Railway** (Backend) - Recommended, free tier available
-- **Render** - Full-stack hosting with free tier
-- **Docker** - Self-hosted option
 
 ### **Quick Production Build**
 
