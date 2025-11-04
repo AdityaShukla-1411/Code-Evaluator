@@ -1,0 +1,61 @@
+{
+  "name": "code-evaluator-unified-frontend",
+  "version": "2.0.0",
+  "description": "Unified Code Evaluator Frontend - Modern React interface for AI-powered code analysis",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit",
+    "export": "next export"
+  },
+  "dependencies": {
+    "@types/file-saver": "^2.0.7",
+    "@types/mdast": "^4.0.4",
+    "@types/node": "^22.8.6",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@types/unist": "^3.0.3",
+    "autoprefixer": "^10.4.20",
+    "axios": "^1.7.7",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
+    "file-saver": "^2.0.5",
+    "framer-motion": "^11.11.9",
+    "lucide-react": "^0.454.0",
+    "next": "^15.0.3",
+    "postcss": "^8.4.47",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-dropzone": "^14.2.9",
+    "react-hot-toast": "^2.4.1",
+    "react-markdown": "^9.0.1",
+    "recharts": "^2.13.0",
+    "tailwind-merge": "^2.5.4",
+    "tailwindcss": "^3.4.14",
+    "typescript": "^5.6.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.9",
+    "@tailwindcss/typography": "^0.5.15",
+    "eslint": "^9.12.0",
+    "eslint-config-next": "^15.0.3"
+  },
+  "keywords": [
+    "code-evaluation",
+    "ai-analysis",
+    "react",
+    "nextjs",
+    "typescript",
+    "tailwindcss",
+    "education"
+  ],
+  "author": "Aditya Shukla <adityashukla1414@gmail.com>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}
