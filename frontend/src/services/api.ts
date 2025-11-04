@@ -124,7 +124,6 @@ export const analyzeBulkFiles = async (
       "/analyze/bulk",
       { files: results }
     );
-
     return response.data.data || response.data;
   } catch (error: any) {
     console.error("Bulk analysis error:", error);
@@ -149,7 +148,7 @@ export const getReportById = async (id: string): Promise<SavedReport> => {
     const response = await api.get<ApiResponse<SavedReport>>(`/reports/${id}`);
     return response.data.data || response.data;
   } catch (error: any) {
-    console.error(`Failed to fetch report ${id}:", error);
+    console.error(`Failed to fetch report ${id}:`, error);
     throw new Error(handleApiError(error));
   }
 };
@@ -160,7 +159,7 @@ export const deleteReport = async (id: string): Promise<void> => {
     await api.delete(`/reports/${id}`);
     console.log(`Report ${id} deleted successfully`);
   } catch (error: any) {
-    console.error(`Failed to delete report ${id}:, error`);
+    console.error(`Failed to delete report ${id}:`, error);
     throw new Error(handleApiError(error));
   }
 };
@@ -189,7 +188,7 @@ export const exportReport = async (
     console.log(`Report ${id} exported as ${format}`);
     return response.data;
   } catch (error: any) {
-    console.error(`Failed to export report ${id}:", error);
+    console.error(`Failed to export report ${id}:`, error);
     throw new Error(handleApiError(error));
   }
 };
@@ -228,12 +227,11 @@ export const uploadBatchWithProgress = async (
       console.log(
         `Uploaded ${completedFiles}/${totalFiles} files (${progress}%)`
       );
-
       if (onProgress) {
         onProgress(progress);
       }
     } catch (error: any) {
-      console.error(`Failed to upload ${file.name}:", error);
+      console.error(`Failed to upload ${file.name}:`, error);
       results.push({
         filename: file.name,
         success: false,
