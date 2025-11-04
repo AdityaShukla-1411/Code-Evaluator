@@ -160,7 +160,7 @@ export const deleteReport = async (id: string): Promise<void> => {
     await api.delete(`/reports/${id}`);
     console.log(`Report ${id} deleted successfully`);
   } catch (error: any) {
-    console.error(`Failed to delete report ${id}:", error);
+    console.error(`Failed to delete report ${id}:`, error);
     throw new Error(handleApiError(error));
   }
 };
