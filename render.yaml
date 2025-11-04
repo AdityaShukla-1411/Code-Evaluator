@@ -34,7 +34,10 @@ services:
       - key: RATE_LIMIT_MAX
         value: 100
       - key: CORS_ALLOWED_ORIGINS
-        value: https://code-evaluator-frontend.onrender.com
+        fromService:
+          type: web
+          name: code-evaluator-frontend
+          envVarKey: RENDER_EXTERNAL_URL
 
   # Frontend Static Site
   - type: web

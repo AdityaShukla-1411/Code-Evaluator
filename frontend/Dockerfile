@@ -39,11 +39,6 @@ COPY --from=builder /app/nginx.conf /etc/nginx/conf.d/default.conf
 # Copy static files from builder
 COPY --from=builder /app/out /usr/share/nginx/html
 
-# Create non-root user for security
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs && \
-    chown -R nextjs:nodejs /usr/share/nginx/html
-
 # Expose port
 EXPOSE 3000
 
