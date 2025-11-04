@@ -9,6 +9,7 @@ const nextConfig = {
   },
   
   // Note: rewrites() don't work with static export
-  // API calls should use NEXT_PUBLIC_API_URL environment variable directly
+  // API calls use NEXT_PUBLIC_API_URL environment variable directly (see src/services/api.ts)
+  // The axios baseURL is configured as: process.env.NEXT_PUBLIC_API_URL || "/api"
 };
 module.exports = nextConfig;
