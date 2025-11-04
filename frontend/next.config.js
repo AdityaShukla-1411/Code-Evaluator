@@ -15,7 +15,7 @@ const nextConfig = {
   async rewrites() {
     const backendUrl =
       process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ||
-      "http://localhost:5000";
+      "https://code-evaluator-backend-7h9w.onrender.com";
     return [
       {
         source: "/api/:path*",
@@ -24,5 +24,4 @@ const nextConfig = {
     ];
   },
 };
-
 module.exports = nextConfig;
