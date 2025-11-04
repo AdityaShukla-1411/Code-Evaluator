@@ -158,7 +158,9 @@ Fill in these settings:
 | **Root Directory**    | `frontend`                              |
 | **Branch**            | `main`                                  |
 | **Build Command**     | `npm install && npm run build`          |
-| **Publish Directory** | `.next`                                 |
+| **Publish Directory** | `out`                                   |
+
+> **📝 Important:** The Publish Directory must be set to `out` (not `.next`). Next.js static export generates files in the `out` directory, which is what Render needs to serve your static site.
 
 ### **4.3 Add Environment Variable**
 

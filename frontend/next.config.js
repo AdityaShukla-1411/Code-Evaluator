@@ -1,27 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Enable static export for deployment to static hosting platforms like Render
+  output: "export",
+  
   images: {
-    remotePatterns: [
-      {
-        protocol: "http",
-        hostname: "localhost",
-        port: "5000",
-        pathname: "/**",
-      },
-    ],
+    // Static export doesn't support Image Optimization, use unoptimized images
+    unoptimized: true,
   },
-  // Allow LAN development origins to avoid Next.js dev warning when accessing via IP
-  allowedDevOrigins: ["http://localhost:3000", "http://127.0.0.1:3000"],
-  async rewrites() {
-    const backendUrl =
-      process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ||
-      "https://code-evaluator-backend-7h9w.onrender.com";
-    return [
-      {
-        source: "/api/:path*",
-        destination: `${backendUrl}/api/:path*`,
-      },
-    ];
-  },
+  
+  // Note: rewrites() don't work with static export
+  // API calls should use NEXT_PUBLIC_API_URL environment variable directly
 };
 module.exports = nextConfig;
