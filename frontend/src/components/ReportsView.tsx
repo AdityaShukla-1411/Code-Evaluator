@@ -353,7 +353,7 @@ export default function ReportsView({
         <div className="text-center py-8">
           <Search className="w-12 h-12 mx-auto text-gray-300 dark:text-gray-600 mb-4" />
           <p className="text-gray-500 dark:text-gray-400">
-            No reports found matching "{searchTerm}"
+            No reports found matching &quot;{searchTerm}&quot;
           </p>
         </div>
       )}
