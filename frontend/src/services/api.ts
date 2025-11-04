@@ -50,7 +50,7 @@ api.interceptors.response.use(
 export const healthCheck = async (): Promise<HealthCheck> => {
   try {
     const response = await api.get<ApiResponse<HealthCheck>>("/health");
-    return response.data.data || response.data;
+    return (response.data.data || response.data) as HealthCheck;
   } catch (error: any) {
     console.error("Health check failed:", error);
     throw new Error(handleApiError(error));
@@ -68,7 +68,7 @@ export const analyzeCode = async (
       { code, language }
     );
     console.log("Analysis successful");
-    return response.data.data || response.data;
+    return (response.data.data || response.data) as AnalysisResult;
   } catch (error: any) {
     console.error("Analysis error:", error);
     throw new Error(handleApiError(error));
@@ -90,7 +90,7 @@ export const uploadFile = async (file: File): Promise<AnalysisResult> => {
       }
     );
     console.log("File uploaded successfully");
-    return response.data.data || response.data;
+    return (response.data.data || response.data) as AnalysisResult;
   } catch (error: any) {
     console.error("Upload error:", error);
     throw new Error(handleApiError(error));
@@ -99,7 +99,8 @@ export const uploadFile = async (file: File): Promise<AnalysisResult> => {
 // Analyze Bulk Files
 export const analyzeBulkFiles = async (
   files: File[],
-  onProgress?: (progress: number) => void
+  onProgress?: (progress: number) => void,
+  problemStatement?: string
 ): Promise<BulkAnalysisResult> => {
   try {
     const uploadResults: any[] = [];
@@ -113,9 +114,9 @@ export const analyzeBulkFiles = async (
     // Trigger bulk analysis
     const response = await api.post<ApiResponse<BulkAnalysisResult>>(
       "/analyze/bulk",
-      { files: results }
+      { files: results, problemStatement }
     );
-    return response.data.data || response.data;
+    return (response.data.data || response.data) as BulkAnalysisResult;
   } catch (error: any) {
     console.error("Bulk analysis error:", error);
     throw new Error(handleApiError(error));
@@ -125,7 +126,7 @@ export const analyzeBulkFiles = async (
 export const getAllReports = async (): Promise<ReportSummary[]> => {
   try {
     const response = await api.get<ApiResponse<ReportSummary[]>>("/reports");
-    return response.data.data || response.data;
+    return (response.data.data || response.data) as ReportSummary[];
   } catch (error: any) {
     console.error("Failed to fetch reports:", error);
     throw new Error(handleApiError(error));
@@ -135,7 +136,7 @@ export const getAllReports = async (): Promise<ReportSummary[]> => {
 export const getReportById = async (id: string): Promise<SavedReport> => {
   try {
     const response = await api.get<ApiResponse<SavedReport>>(`/reports/${id}`);
-    return response.data.data || response.data;
+    return (response.data.data || response.data) as SavedReport;
   } catch (error: any) {
     console.error(`Failed to fetch report ${id}:`, error);
     throw new Error(handleApiError(error));
@@ -155,7 +156,7 @@ export const deleteReport = async (id: string): Promise<void> => {
 export const getStatistics = async (): Promise<Statistics> => {
   try {
     const response = await api.get<ApiResponse<Statistics>>("/statistics");
-    return response.data.data || response.data;
+    return (response.data.data || response.data) as Statistics;
   } catch (error: any) {
     console.error("Failed to fetch statistics:", error);
     throw new Error(handleApiError(error));
@@ -164,7 +165,7 @@ export const getStatistics = async (): Promise<Statistics> => {
 // Export Report
 export const exportReport = async (
   id: string,
-  format: CSVReportType = "json"
+  format: CSVReportType = "summary"
 ): Promise<Blob> => {
   try {
     const response = await api.get(`/export/${id}`, {
@@ -287,7 +288,33 @@ export { getReportById as getReport };
 export { uploadFile as analyzeFile };
 
 // Utility function to download CSV files
-export function downloadCSV(csv: string, filename: string): void {
+export function downloadCSV(results: AnalysisResult[], type: CSVReportType): void {
+  // Convert results to CSV format based on type
+  let csv = '';
+  
+  if (type === 'summary') {
+    // Summary CSV format
+    csv = 'Report ID,File Name,Score,Grade,Timestamp\n';
+    results.forEach(result => {
+      csv += `${result.reportId},${result.fileName},${result.score},${result.grade},${result.timestamp}\n`;
+    });
+  } else if (type === 'detailed') {
+    // Detailed CSV format
+    csv = 'Report ID,File Name,Score,Grade,Language,Lines of Code,Complexity,Maintainability Index,Timestamp\n';
+    results.forEach(result => {
+      csv += `${result.reportId},${result.fileName},${result.score},${result.grade},${result.analysis.language},${result.analysis.totalLines},${result.analysis.complexity},${result.analysis.maintainabilityIndex},${result.timestamp}\n`;
+    });
+  } else if (type === 'plagiarism') {
+    // Plagiarism CSV format
+    csv = 'Report ID,File Name,Score,Grade,Plagiarism Similarity,Risk Level,Timestamp\n';
+    results.forEach(result => {
+      const similarity = result.plagiarismCheck?.similarity || 0;
+      const riskLevel = result.plagiarismCheck?.riskLevel || 'N/A';
+      csv += `${result.reportId},${result.fileName},${result.score},${result.grade},${similarity},${riskLevel},${result.timestamp}\n`;
+    });
+  }
+  
+  const filename = `analysis-${type}-${new Date().toISOString().split('T')[0]}.csv`;
   const csvFile = new Blob([csv], { type: 'text/csv' });
   const downloadLink = document.createElement('a');
   downloadLink.download = filename;
